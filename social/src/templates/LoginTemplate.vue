@@ -2,9 +2,10 @@
   <span>
     <header>
       <navbar-vue cor="" url="/" logo="Social">
-        <li><router-link to="/">Home</router-link></li>
-        <li><router-link to="/login">Entrar</router-link></li>
-        <li><router-link to="/cadastro">Cadastre-se</router-link></li>
+        <li v-if="!usuario"><router-link to="/login">Entrar</router-link></li>
+        <li v-if="!usuario"><router-link to="/cadastro">Cadastre-se</router-link></li>
+        <li v-if="usuario"><router-link to="/perfil">{{usuario.name}}</router-link></li>
+        <li v-if="usuario"><a v-on:click="sair()">Sair</a></li>
       </navbar-vue>
     </header>
 
@@ -44,11 +45,30 @@
 
   export default {
     name: 'LoginTemplate',
+    data(){
+      return {
+        usuario: false
+      }
+    },
     components: {
       NavbarVue,
       FooterVue,
       GridVue,
       CardMenuVue
+    },
+    created(){
+      //console.log('created()');
+      let user = sessionStorage.getItem('usuario');
+      if(user){
+        this.usuario = JSON.parse(user);
+        this.$router.push('/');
+      }
+    },
+    methods:{
+      sair(){
+        sessionStorage.clear();
+        this.usuario = false;
+      }
     }
   }
 </script>

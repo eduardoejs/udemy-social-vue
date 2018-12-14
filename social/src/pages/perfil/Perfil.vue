@@ -1,5 +1,5 @@
 <template>
-  <login-template>
+  <site-template>
 
     <span slot="menuesquerdo">
       <img src="https://static.quizur.com/i/b/5b035c77702c13.471891555b035c775c3ff9.54480388.png" alt="social" class="responsive-img">
@@ -7,54 +7,66 @@
 
     <span slot="principal">
 
-      <h2>Cadastro</h2>
+      <h2>Perfil do usuário</h2>
       <input type="text" placeholder="Nome" v-model="usuario.name">
       <input type="email" placeholder="E-Mail" v-model="usuario.email">
+
+      <div class="file-field input-field">
+        <div class="btn">
+          <span>Imagem</span>
+          <input type="file">
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text">
+        </div>
+      </div>
+
       <input type="password" placeholder="Senha" v-model="usuario.password">
       <input type="password" placeholder="Confirme sua Senha" v-model="usuario.password_confirmation">
-      <button type="button" class="btn waves-effect waves-light" v-on:click="cadastrar()">Enviar</button>
-      <router-link to="/login" class="btn orange waves-effect waves-light">Já tenho conta</router-link>
+      <button type="button" class="btn waves-effect waves-light" v-on:click="perfil()">Atualizar</button>
 
     </span>
 
-  </login-template>
+  </site-template>
 </template>
 
 <script>
-  import LoginTemplate from '@/templates/LoginTemplate'
+  import SiteTemplate from '@/templates/SiteTemplate'
   import axios from 'axios';
 
   export default {
-    name: 'Cadastro',
+    name: 'Perfil',
     data () {
       return {
         usuario:{name:'', email:'', password:'', password_confirmation:''}
       }
     },
+    created(){
+      let user = sessionStorage.getItem('usuario');
+      if(user){
+        this.usuario = JSON.parse(user);
+        /*this.usuario.name = this.usuario.name;
+        this.usuario.email = this.usuario.email;
+        this.usuario.password = this.usuario.password;*/
+      }
+    },
     components:{
-      LoginTemplate
+      SiteTemplate
     },
     methods:{
-      cadastrar(){
-        axios.post('http://127.0.0.1:8000/api/cadastro', {
+      perfil(){
+        axios.put('http://127.0.0.1:8000/api/perfil', {
             name: this.usuario.name,
             email: this.usuario.email,
             password: this.usuario.password,
             password_confirmation: this.usuario.password_confirmation
-          })
+          },{"headers":{"authorization":"Bearer "+this.usuario.token}})
           .then(response => {
-            //console.log(response);
             if(response.data.token){
-              //cadastro com sucesso
-              //console.log('sucesso');
+              console.log(response.data);
               sessionStorage.setItem('usuario',JSON.stringify(response.data));
-              this.$router.push('/');
-            }else if(response.data.status == false){
-              //login não existe
-              //console.log('erro ao cadastrar');
-              alert('Erro ao inserir registro');
+              alert('Dados atualizados com sucesso!');
             }else{
-              //errors de validação
               //console.log('erro de validacao');
               let erros = '';
               for(let erro of Object.values(response.data)){

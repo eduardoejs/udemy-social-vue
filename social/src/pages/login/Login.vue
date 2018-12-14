@@ -34,28 +34,36 @@
     },
     methods:{
       login(){
-
         axios.post('http://127.0.0.1:8000/api/login', {
-          email: this.usuario.email,
-          password: this.usuario.password
-        })
-        .then(response => {
-          console.log(response);
-          if(response.data.token){
-            //login com sucesso
-            console.log('login sucesso');
-          }else if(response.data.status == false){
-            //login não existe
-            console.log('login nao existe');
-          }else{
-            //errors de validação
-            console.log('erro de validacao');
-          }
-        })
-        .catch(e => {
-          //this.errors.push(e)
-          console.log(e);
-        })
+            email: this.usuario.email,
+            password: this.usuario.password
+          })
+          .then(response => {
+            //console.log(response);
+            if(response.data.token){
+              //login com sucesso
+              //console.log('login sucesso');
+              sessionStorage.setItem('usuario',JSON.stringify(response.data));
+              this.$router.push('/');
+            }else if(response.data.status == false){
+              //login não existe
+              //console.log('login nao existe');
+              alert('Login inválido!');
+            }else{
+              //errors de validação
+              //console.log('erro de validacao');
+              let erros = '';
+              for(let erro of Object.values(response.data)){
+                erros += erro + ' ';
+              }
+              alert(erros);
+            }
+          })
+          .catch(e => {
+            //this.errors.push(e)
+            //console.log(e);
+            alert('Não foi possível realizar a operação. Tente novamente mais tarde!')
+          })
       }
     }
   }
